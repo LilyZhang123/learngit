@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>JqueryMy test</title>
+	<script src="js/sugar_1.3.9.js"></script>
+	<script src="js/jquery-2.1.1.js"></script>
+	<script src="js/jquerymy-1.2.8.min.js"></script>
+
+</head>
+<body>
+ <!-- <div id="form">
+	 <input type="text" name ="name" />
+	 <input type="text" name ="age" />
+</div> -->
+
+<!-- <script type="text/javascript">
+	var data = {
+	 name: "Luke Skywalker",
+	 age: 12
+	};
+	$("#form").my({ui:{
+	 "[name=name]": "name",
+	 "[name=age]": "age"
+	}}, data);
+</script> -->
+<div class="form">
+    <h3 id="name"></h3>
+    <h3 id="age"></h3>
+    <h3 id="addr0" data-type="0"></h3>
+    <h3 id="addr1" data-type="1"></h3>
+    <h3 id="addr2" data-type="2"></h3>
+    <input  id="addr3" data-type="3" type="text">
+</div>
+<script>
+	var data = {
+      name:"Lily",
+      age:25,
+      addr:[
+        {name:'a1'},{name:'b2'},{name:'c3'},{name:'d4'}
+      ]
+    }
+
+    $('.form').my({ui:{
+      "#name":"name",
+      "#age":"age",
+      "#addr0":{
+        bind:function( data, val, ele){
+          var type = parseInt($(ele).attr('data-type'))
+          if(!!val)data.addr[type].name=val;
+          return data.addr[type].name;
+        }
+      },
+      "#addr1":{
+        bind:function( data, val, ele){
+          var type = parseInt($(ele).attr('data-type'))
+          if(!!val)data.addr[type].name=val;
+          return data.addr[type].name;
+        }
+      },
+      "#addr2":{
+        bind:function( data, val, ele){
+          var type = parseInt($(ele).attr('data-type'))
+          if(!!val)data.addr[type].name=val;
+          return data.addr[type].name;
+        }
+      },
+      "#addr3":{
+        bind:function( data, val, ele){
+          var type = parseInt($(ele).attr('data-type'))
+          if(!!val)data.addr[type].name=val;
+          return data.addr[type].name;
+        }
+      }
+    },
+    data:data
+  })
+</script>
+</body>
+</html>
