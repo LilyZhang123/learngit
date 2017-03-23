@@ -6,10 +6,15 @@
 	<script src="https://unpkg.com/vue/dist/vue.js"></script>
 </head>
 <body>
-	<ol>
+	<ol id="ol">
 		<todo-item></todo-item>
 	</ol>
 	<script>
+	    var app = new Vue({
+	    	el:'#ol'
+	    });
+	    console.log(app);
+
 		Vue.component('todo-item',{
 			template:'<li>this is a todo</li>'
 		})
