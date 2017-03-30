@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>绑定-HTML-Class</title>
+	<link rel="stylesheet" type="text/css" href="../../node_modules/bootstrap/dist/css/bootstrap.min.css">
+	<script src="../../node_modules/vue/dist/vue.js"></script>
+</head>
+<body>
+<!-- <div id="el1" v-bind:class="{ active: isActive }"></div> -->
+<!-- <div class="static"
+     v-bind:class="classObj">
+     texts
+</div> -->
+<!-- <div class="static"
+     v-bind:class="[activeClass,errorClass]">
+     texts
+</div> -->
+<!-- <div class="static"
+     v-bind:class="[isActive?activeClass:'',errorClass]">
+     texts
+</div> -->
+<div class="static"
+     v-bind:class="[{active:isActive},errorClass]" v-bind:style="{color: activeColor,fontSize:fontSize+'px'}">
+     texts
+     <my-component class='baz boo'></my-component>
+</div>
+	
+<script type="text/javascript">
+	// var vm = new Vue({
+	// 	el:'.static',
+	// 	data: {
+	// 	  isActive: true,
+	// 	  hasError: false
+	// 	}
+	// });
+	// var vm = new Vue({
+	// 	el:'.static',
+	// 	data: {
+	// 	  classObj:{
+	// 	  	active : true,
+	// 	  	'text-danger':false
+	// 	  }
+	// 	}
+	// });
+	// var vm = new Vue({
+	// 	el:'.static',
+	// 	data: {
+	// 	  isActive: true,
+	// 	  error: null
+	// 	},
+	// 	computed : {
+	// 		classObj : function () {
+	// 			return {
+	// 				active : this.isActive && !this.error,
+	// 				'text-danger': this.error && this.error.type === 'fatal'
+	// 			}
+	// 		}
+	// 	}
+	// });
+	Vue.component('my-component', {
+	  template: '<p class="foo bar">Hi</p>'
+	})
+	var vm = new Vue({
+		el:'.static',
+		data: {
+		  isActive: false,
+		  activeClass: 'active',
+		  errorClass: 'text-danger',
+		  activeColor:'red',
+		  fontSize:30
+		}
+	});
+</script>
+
+</body>
+</html>

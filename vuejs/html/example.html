@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>实例</title>
+	<script src="../../node_modules/vue/dist/vue.js"></script>
+</head>
+<body>
+	<h1 id="app1">构造器</h1>
+	<h1 id="app2">属性与方法</h1>
+	<h1 id="example">属性与方法</h1>
+	<script type="text/javascript">
+    //****** 构造器
+   	// var vm = new Vue({
+        
+   	// });
+   	// var MyComponent = Vue.extend({
+    //   // 扩展选项
+   	// });
+   	// 所有的‘mycomponent’实例豆浆机以预定义的扩展选项被创建
+   	// var MyComponentInstance = new MyComponent();
+
+   	// var data = {
+   	// 	a : 1
+   	// };
+   	// var vm = new Vue({
+   	// 	el:'#example',
+   	// 	data: data
+   	// });
+    //***** 属性与方法
+	//   	var data = { a: 1 }
+	// var vm = new Vue({
+	//   el: '#example',
+	//   data: data
+	// })
+	// // vm.$data === data // -> true
+	// // vm.$el === document.getElementById('example') // -> true
+	// // $watch 是一个实例方法
+	// vm.$watch('a', function (newVal, oldVal) {
+	//   // 这个回调将在 `vm.a`  改变后调用
+	//   console.log(newVal,oldVal);
+	// })
+
+	var vm = new Vue({
+		data:{
+			a:1
+		},
+		created:function () {
+			console.log('a is '+this.a);
+		}
+	})
+
+   </script>
+</body>
+</html>
