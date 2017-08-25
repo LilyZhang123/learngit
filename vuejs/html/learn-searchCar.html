@@ -1,0 +1,510 @@
+<template>
+    <div class="container bg-color">
+        <div class="car-title g-r-center">
+            <div class="name">车款</div>
+            <div class="car-name g-overflow-hidden g-r-center">{{carTitle}}</div>
+        </div>
+        <div class="car-title g-r-center no-border" v-if="!isNaN(carPrice)">
+            <div class="name">指导价</div>
+            <div class="car-name g-overflow-hidden g-r-center">{{carPrice}}万</div>
+        </div>
+        <div class="introduction">完善下列资料</div>
+        <div class="car-title g-r-center">
+            <div class="name">外观</div>
+            <div class="car-name g-overflow-hidden g-r-center">
+                <span v-bind:class="{'active':item.status,color:true}" @click="selectColor(index,outColor)" v-for="(item,index) in outColor">{{item.name}}</span>
+            </div>
+        </div>
+        <div class="car-title g-r-center">
+            <div class="name">内饰</div>
+            <div class="car-name g-overflow-hidden g-r-center">
+                <span v-bind:class="{'active':item.status,color:true}" @click="selectColor(index,inColor)" v-for="(item,index) in inColor">{{item.name}}</span>
+            </div>
+        </div>
+        <div class="car-title g-r-center">
+            <div class="name">期望价</div>
+            <div class="car-input g-overflow-hidden g-r-center">
+                <input type="text"  v-model="expectedPrice" class="input" placeholder="输入期望价格"></div>
+        </div>
+        <div class="car-title g-r-center">
+            <div class="name">销售地区</div>
+            <div class="car-input g-overflow-hidden g-r-center">
+                <input type="text" v-model="salePlace" class="input" placeholder="输入销售地区"></div>
+        </div>
+        <div class="car-title g-r-center no-border">
+            <div class="name">备注</div>
+            <div class="car-input g-overflow-hidden g-r-center">
+                <textarea placeholder="说明对合格证、是否私户、发票等需求" class="input" v-model="remark"></textarea>
+            </div>
+        </div>
+        <div class="submit-area g-r-center">
+            <button class="btn submit" v-if="expectedPrice.length>
+                0&&salePlace.length>0&&remark.length>0&&outColorStatus==true&&inColorStatus == true" @click="isShowMoadl">提交
+            </button>
+        </div>
+        <div class="modal" v-if="showMoadlStatus">
+            <div class="close-area">
+                <img src="/src/assets/%403xdelete-pop.png" class="close-img" @click="showMoadl">
+            </div>
+            <div class="modal-content">
+                <div class="modal-title">输入手机号以方便我们及时与您联系</div>
+                <div class="modal-body">
+                    <div class="modal-line">
+                        <input type="text"  placeholder="输入姓名" v-model="userName"></div>
+                    <div class="modal-line">
+                        <input type="text" placeholder="输入手机号" v-model="userPhone" maxlength="11"></div>
+                    <div class="modal-line g-r-center">
+                        <input type="text" class="f-l-input" placeholder="输入验证码" v-model="validation" maxlength="6">
+                        <button ref="getValidation" type="button" v-bind:class="{'verification-code':true,'in':checkPhone(userName,userPhone)&&sendingStatus}" @click="getValidationFun('sms')" >{{countWord}}</button>
+                    </div>
+                    <div class="modal-line" v-if="errorMessageStatus">
+                        <div class="err">{{errorMessage}}</div>
+                    </div>
+                </div>
+                <div class="modal-bottom">
+                    <button type="button" v-bind:class="{'confirm':true,'in':confirmStatus}" @click="ableClick">确认并提交</button>
+                </div>
+            </div>
+        </div>
+        <div v-if="showMoadlStatus" class="modal-backdrop fade in"></div>
+        <div class="modal imgModal" v-if="showImgMoadlStatus">
+            <div class="close-area">
+                <img src="/src/assets/%403xdelete-pop.png" class="close-img" @click="showImgMoadl">
+            </div>
+            <div class="modal-content">
+                <div class="modal-title">请求验证码频繁，请输入图形验证码继续</div>
+                <div class="modal-body">
+                    <div class="modal-line">
+                        <div class="modal-line g-r-center">
+                        <input type="text" class="f-l-input" placeholder="输入图形验证码" v-model="imgValidation" maxlength="4" @change="testImgCode">
+                        <div class="imgBox" @click="getImgCode" >
+                            <img :src="imgUrl" class="img-code">
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div v-if="showImgMoadlStatus" class="modal-backdrop modal-backdrop-1 fade in"></div>
+    </div>
+</template>
+
+<script>
+"use strict";
+export default {
+    data() {
+        return {
+            carTitle:'',
+            carPrice:'',
+            outColor:[
+            {name:'黑',status:false},
+            {name:'白',status:false},
+            {name:'银',status:false},
+            {name:'红',status:false},
+            {name:'金',status:false},
+            {name:'其他',status:false}
+            ],
+            inColor:[
+            {name:'黑',status:false},
+            {name:'米',status:false},
+            {name:'灰',status:false},
+            {name:'棕',status:false},
+            {name:'红',status:false},
+            {name:'其他',status:false}
+            ],
+            expectedPrice:'',
+            salePlace:'',
+            remark:'',
+            showMoadlStatus:false,
+            userName:'',
+            userPhone:'',
+            confirmStatus:false,
+            validation:'',
+            countWord:'获取验证码',
+            sendingStatus:'true',
+            openid:'odjnHw8eM3brwQsZAfGgDvT9En98',
+            imgValidation:'',
+            imgUrl:'',
+            showImgMoadlStatus:false,
+            errorMessageStatus:false,
+            errorMessage:''
+        }
+    },
+    created() {
+        this.carTitle = decodeURIComponent(this.$route.query.carTitle);
+        this.carPrice = this.$route.query.carPrice/10000;
+        this.carPrice = this.carPrice.toFixed(2);
+        this.openid = JSON.parse(localStorage.userInfo).openId;
+        this.userPhone = JSON.parse(localStorage.userInfo).mobile;
+    },
+    methods: {
+        selectColor:function (index,typeData) {
+            // console.log(index,typeData);
+            for (var i = typeData.length - 1; i >= 0; i--) {
+                typeData[i].status = false;
+            }
+            typeData[index].status = true;
+            if (typeData == this.outColor) {
+                this.outColorStatus = true;
+            }else{
+                this.inColorStatus = true;
+            }
+        },
+        isShowMoadl:function () {
+            if (this.openid && this.userPhone) {
+                this.submitFun();
+            }else{
+                this.showMoadl();
+            }
+        },
+        showMoadl :function () {
+            if (this.showMoadlStatus == false) {
+                this.showMoadlStatus = true;
+            }else{
+                this.showMoadlStatus = false;
+            }
+        },
+        showImgMoadl :function () {
+            if (this.showImgMoadlStatus == false) {
+                this.showImgMoadlStatus = true;
+            }else{
+                this.showImgMoadlStatus = false;
+            }
+        },
+        testImgCode :function () {
+            if (this.imgValidation.length == 4) {
+                this.getValidationFun('img');
+            }
+        },
+        getValidationFun:function (type) {
+            let that = this,code ='';
+            let apiHost = this.$store.state.APIHOST;
+            if (type ='img') {
+                 code = this.imgValidation;
+            }else if(type === 'sms'){
+                code = "";
+            }
+            if(this.$refs.getValidation.className.indexOf('in') != -1){
+               this.$http.get(apiHost+'/verify/sms',{params: {mobile: this.userPhone,code:code}}).then(res => {
+                if (res.body.code === 0) {
+                    this.showImgMoadlStatus = false;
+                    that.countdown();
+                }else if (res.body.code === 21002) {
+                    this.showImgMoadlStatus = true;
+                    that.getImgCode();
+                }else if(res.body.code === 20004){
+                    that.getImgCode();
+                }
+            },(res => {}));
+            }
+        },
+        getImgCode:function () {
+            let apiHost = this.$store.state.APIHOST;
+            this.imgUrl = apiHost+'/verify/captcha'+'?mobile='+this.userPhone+'&v=' + Date.parse(new Date());
+        },
+        checkPhone:function(name,phone){
+            if(!(/^1[34578]\d{9}$/.test(phone))){ 
+                return false; 
+            }else if(/^1[34578]\d{9}$/.test(phone)&&name.length>0){
+                return true;
+            }
+        },
+        countdown: function(){
+            let s = 60;
+            this.sendingStatus=false;
+            let coutFun=setInterval(()=>{
+               s--;
+               this.countWord = s
+               if(s<= 0){
+                clearInterval(coutFun);
+                this.countWord = '重新发送'
+                this.sendingStatus=true;
+               }
+            },1000)
+        },
+        ableClick:function () {
+            if (this.confirmStatus == true) {
+                this.confirmFun();
+            }else{
+                return;
+            }
+        },
+        confirmFun:function() {
+            JSON.parse(localStorage.userInfo).mobile?this.submitFun():this.bindUser();
+        },
+        bindUser:function(){
+            let that = this;
+            that.errorMessage = ''
+            let apiHost = this.$store.state.APIHOST;
+            this.$http.post(apiHost+'/event/wechat/bindUser',{openid: this.openid,name:this.userName,mobile:this.userPhone,code: this.validation},{emulateJSON: true}).then(res => {
+                if (res.data.code === 0) {
+                     that.submitFun();
+                     let userInfo ={
+                        mobile:that.userPhone
+                     }
+                     localStorage.userInfo = JSON.stringify(userInfo);
+                }else{
+                     that.errorMessage = res.data.message;
+                     that.errorMessageStatus = true;
+                }
+            },(res =>{}));
+        },
+        submitFun :function() {
+            let that = this;
+            let apiHost = this.$store.state.APIHOST;
+            let sIncolor = '',sOutcolor = '';
+            for (var i = this.inColor.length - 1; i >= 0; i--) {
+                if (this.inColor[i].status == true) {
+                      sIncolor=this.inColor[i].name
+                }
+            }
+            for (var i = this.outColor.length - 1; i >= 0; i--) {
+                if (this.outColor[i].status == true) {
+                      sOutcolor=this.outColor[i].name
+                }
+            }
+            this.$http.post(apiHost+'/event/wechat/addEnquire',{openid: this.openid,type_title:this.carTitle,in_color:sIncolor,out_color:sOutcolor,sale_address:this.salePlace,price:this.expectedPrice,note:this.remark},{emulateJSON: true}).then(res => {
+                            that.$router.push({ path: 'result', query: {result:res.body.code,
+                            work_time:res.body.data.work_time,message:res.body.message
+                            }});
+                    },(res => {}));
+        }
+    },
+    watch: {
+        validation:function () {
+            if (!(/^\d{6}$/.test(this.validation))) {
+                this.confirmStatus = false
+            }else{
+                this.confirmStatus = true
+            }
+        }
+    }
+}
+</script>
+
+<style lang="scss" scoped>
+.bg-color{
+    background: #fff;
+}
+.name{
+    width:25%;
+    font-size:0.16rem;
+    color:#000;
+    line-height:0.22rem
+}
+.car-title{
+  margin-left:0.16rem;
+  border-bottom:1px #e1e1e1 solid;
+  padding:0.16rem 0.16rem 0.16rem 0;
+}
+.car-name{
+    flex:1;
+    width:75%;
+    font-size:0.16rem;
+    color:#000;
+    display:-webkit-box; 
+    -webkit-box-orient:vertical;
+    -webkit-line-clamp:2; 
+    flex-flow: row wrap;
+    white-space:inherit;
+    word-wrap:break-word;
+}
+.introduction{
+    font-size:0.14rem;
+    color:#999;
+    background-color:#f0f0f0;
+    border-top:1px #e1e1e1 solid;
+    border-bottom:1px #e1e1e1 solid;
+    padding:0.16rem 0.16rem 0.08rem 0.16rem;
+}
+.no-border{
+    border-bottom:0;
+}
+.color{
+    height:0.37rem;
+    line-height:0.37rem;
+    text-align:center;
+    color:#333;
+    font-size:0.17rem;
+    border-radius:0.15rem;
+    display:inline-block;
+    border:1px #d7d7d7 solid;
+    padding:0 0.12rem;
+    margin-top:0.06rem;
+    margin-right:0.04rem
+}
+.color.active{
+    color:#FF7206;
+    border-color:#FF7206;
+}
+.input{
+    height:0.42rem;
+    width:100%;
+    background:none;
+    border:none;
+    outline:none;
+    font-size:0.14rem;
+}
+.submit-area{
+    background-color:#f0f0f0;
+    padding-top:0.16rem;
+    padding-bottom:0.3rem;
+    border-top:1px #e1e1e1 solid;
+}
+.btn{
+    width:90%;
+    height:0.44rem;
+    font-size:0.15rem;
+    line-height:0.44rem;
+    background-color:#FF7206;
+    border:none;
+    border-radius:5px;
+    color:#fff;
+    outline:none;
+}
+.modal{
+    width:100%;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 999;
+    overflow: hidden;
+    -webkit-overflow-scrolling: touch;
+    outline: 0;
+}
+.modal-content{
+    width:90%;
+    position: relative;
+    background-color: #fff;
+    -webkit-background-clip: padding-box;
+    background-clip: padding-box;
+    border: 1px solid #999;
+    border: 1px solid rgba(0,0,0,.2);
+    border-radius: 6px;
+    outline: 0;
+    -webkit-box-shadow: 0 3px 9px rgba(0,0,0,.5);
+    box-shadow: 0 3px 9px rgba(0,0,0,.5);
+    margin:0.3rem auto;
+}
+.modal-backdrop{
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 990;
+    background-color: #000;
+    opacity: .5;
+}
+.modal-title{
+    text-align:center;
+    font-size:0.15rem;
+    margin:0.33rem 0 0.33rem;
+    color:#333;
+    
+}
+body{
+    overflow:hidden;
+}
+.modal-line{
+   overflow:hidden;
+   width:90%;
+   margin:0 auto 0.08rem;
+}
+.modal-line input{
+   width:100%;
+   background-color:#eee;
+   height:0.44rem;
+   padding:0 0.16rem;
+   border-radius:0.03rem;
+}
+.modal-line .f-l-input{
+    width:60%;
+}
+.verification-code{
+    width:38%;
+    height:0.44rem;
+    background-color:#c1c1c1;
+    color:#fff;
+    outline:none;
+    border:none;
+    border-radius:0.03rem;
+    margin-left:0.08rem;
+}
+.verification-code.in{
+    background-color:#FF7206;
+}
+.modal-bottom{
+    margin-top:0.30rem;
+    padding-bottom:0.3rem;
+}
+.confirm{
+    width:90%;
+    height:0.44rem;
+    background-color:#d4d4d4;
+    color:#fff;
+    outline:none;
+    border:none;
+    border-radius:0.03rem;
+    margin:0 auto;
+    display:block;
+}
+.confirm.in{
+    background-color:#FF7206;
+}
+.imgBox{
+    width:38%;
+    height:0.44rem;
+    color:#fff;
+    outline:none;
+    border:none;
+    border-radius:0.03rem;
+    margin-left:0.08rem;
+    background-color:#eee;
+}
+.close-area{
+    width:90%;
+    margin:0.38rem auto;
+    overflow:hidden;
+}
+.close-img{
+    width:0.38rem;
+    height:0.38rem;
+    float:right;
+}
+.fade{
+    opacity:0;
+    -webkit-transition: opacity .15s linear;
+    -o-transition: opacity .15s linear;
+    transition: opacity .15s linear;
+}
+.in{
+    opacity:1;
+    -webkit-transition: opacity .15s linear;
+    -o-transition: opacity .15s linear;
+    transition: opacity .15s linear;
+}
+.modal-backdrop.in{
+    opacity:0.5;
+}
+.img-code{
+    width:100%;
+    height:100%;
+}
+.imgModal{
+    z-index:1001;
+    .modal-content{
+        margin:1.3rem auto;
+    }
+}
+.modal-backdrop-1{
+    z-index:1000;
+}
+.err{
+    color:#E90404;
+    font-size:0.15rem;
+    margin-left:0.15rem;
+}
+</style>

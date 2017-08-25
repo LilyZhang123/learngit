@@ -15,14 +15,114 @@
   Now you see me
 		</div>
 		<div v-else>Now you don't</div>
+
+		<template v-if="ok">
+			<h1>Title</h1>
+			<p>Paragraph 1</p>
+			<p>Paragraph 2</p>
+		</template>
+
+		<div v-if="type === 'A'">A</div>
+		<div v-else-if="type === 'B'">B</div>
+		<div v-else-if="type === 'C'">C</div>
+		<div v-else>Not A/B/C</div>
+		<template v-if="loginType === 'username'">
+			<label>Username</label>
+			<input placeholder="Enter your username" key="username-input"></template>
+		<template v-else>
+			<label>Email</label>
+			<input placeholder="Enter your email address" key="email-input"></template>
+		<ul>
+			<li v-for="item in items">{{ item.message }}</li>
+		</ul>
+
+	</div>
+	<ul id="example-2">
+		<li v-for="(item, index) in items">{{ parentMessage }} - {{ index }} - {{ item.message }}</li>
+	</ul>
+	<ul id="example-3">
+		<template v-for="item in items">
+			<li>{{ item.msg }}</li>
+			<li class="divider"></li>
+		</template>
+	</ul>
+	<div id="todo-list-example">
+		<input
+	    v-model="newTodoText"
+	    v-on:keyup.enter="addNewTodo"
+	    placeholder="Add a todo">
+		<ul>
+			<li
+		      is="todo-item"
+		      v-for="(todo, index) in todos"
+		      v-bind:title="todo"
+		      v-on:remove="todos.splice(index, 1)"
+		    ></li>
+		</ul>
 	</div>
 	<script type="text/javascript">
 	var vm = new Vue({
 		el:'#app',
 		data:{
-			ok:true
-		}
+			ok:true,
+			type:"A",
+			items:[
+				{message:'hello'},
+				{message:'hi'}
+			]
+			}
+	});
+	var example2 = new Vue({
+	  el: '#example-2',
+	  data: {
+	    parentMessage: 'Parent',
+	    items: [
+	      { message: 'Foo' },
+	      { message: 'Bar' }
+	    ]
+	  }
+	});
+	var example3 = new Vue({
+	  el: '#example-3',
+	  data: {
+	    parentMessage: 'Parent',
+	    items: [
+	      { message: 'Foo',
+	      msg:[11,2] },
+	      { message: 'Bar' ,
+	      msg:[22,3]
+	      }
+	    ]
+	  }
+	});
+
+	Vue.component('todo-item', {
+	  template: '\
+	    <li>\
+	      {{ title }}\
+	      <button v-on:click="$emit(\'remove\')">X</button>\
+	    </li>\
+	  ',
+	  props: ['title']
 	})
+	new Vue({
+	  el: '#todo-list-example',
+	  data: {
+	    newTodoText: '',
+	    todos: [
+	      'Do the dishes',
+	      'Take out the trash',
+	      'Mow the lawn'
+	    ]
+	  },
+	  methods: {
+	    addNewTodo: function () {
+	      this.todos.push(this.newTodoText)
+	      this.newTodoText = ''
+	    }
+	  }
+	})
+
 </script>
 </body>
 </html>

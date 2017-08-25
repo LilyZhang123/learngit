@@ -4,8 +4,10 @@
   "description": "console.log(\"readme文件\");",
   "main": "README.js",
   "dependencies": {
+    "angular": "^1.2.32",
     "bootstrap": "^3.3.7",
     "jquery": "^3.2.1",
+    "sip.js": "^0.7.7",
     "vue": "^2.2.4"
   },
   "devDependencies": {},
